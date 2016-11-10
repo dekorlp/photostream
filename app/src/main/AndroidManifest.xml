@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.hda.photostream">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Photostream main"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <!--<meta-data
+        android:name="PHOTOSTREAM_URL"
+        android:value="http://192.168.178.21:8082"/>-->
+        <meta-data
+        android:name="PHOTOSTREAM_URL"
+        android:value="http://172.16.205.51:8082"/>
+
+        <meta-data
+            android:name="PAGE_SIZE"
+            android:value="6"/>
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+        </activity>
+    </application>
+
+</manifest>

@@ -14,7 +14,7 @@
         android:value="http://192.168.178.21:8082"/>-->
         <meta-data
         android:name="PHOTOSTREAM_URL"
-        android:value="http://172.16.205.51:8082"/>
+        android:value="http://192.168.178.21:8082"/>
 
         <meta-data
             android:name="PAGE_SIZE"

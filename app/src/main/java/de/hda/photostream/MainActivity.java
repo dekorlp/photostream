@@ -1,6 +1,7 @@
 package de.hda.photostream;
 
 import android.app.Activity;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -58,7 +59,8 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
         fab.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
+                BottomSheetDialogFragment bottomSheetDialogFragment = new PictureSourceBottomSheetDialogFragment();
+                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
             }
         });
 

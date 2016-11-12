@@ -1,6 +1,10 @@
 package de.hda.photostream;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -10,10 +14,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -34,11 +41,10 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
     private RecyclerView mRecyclerView;
     //private RecyclerView.LayoutManager mLayoutManager;
     private PhotoAdapter mAdapter;
-    private FloatingActionButton fab;
-    CoordinatorLayout bottomSheetLayout;
     String tag = MainActivity.class.getName();
 
     private static final int COLUMNS_PER_ROW = 1;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,18 +58,43 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
 
         mAdapter = new PhotoAdapter();
         mRecyclerView.setAdapter(mAdapter);
+    }
 
-        bottomSheetLayout = (CoordinatorLayout) findViewById(R.id.bottom_sheet_Fotosource);
+    public void openBottomSheet (View v) {
 
-        fab = (FloatingActionButton)findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener(){
+        View view = getLayoutInflater().inflate(R.layout.bottom_sheet, null);
+        TextView txtKamera = (TextView) view.findViewById(R.id.txt_kamera);
+
+        final Dialog mBottomSheetDialog = new Dialog(MainActivity.this,
+                R.style.MaterialDialogSheet);
+        mBottomSheetDialog.setContentView(view);
+        mBottomSheetDialog.setCancelable(true);
+        mBottomSheetDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        mBottomSheetDialog.getWindow().setGravity(Gravity.BOTTOM);
+        mBottomSheetDialog.show();
+
+        txtKamera.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                BottomSheetDialogFragment bottomSheetDialogFragment = new PictureSourceBottomSheetDialogFragment();
-                bottomSheetDialogFragment.show(getSupportFragmentManager(), bottomSheetDialogFragment.getTag());
+            public void onClick(View view) {
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+                mBottomSheetDialog.dismiss();
             }
         });
 
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            //mImageView.setImageBitmap(imageBitmap);
+        }
     }
 
     @Override

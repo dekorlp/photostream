@@ -2,9 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.hda.photostream">
 
-    <uses-feature android:name="android.hardware.camera"
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="true" />
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -13,24 +16,30 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!--<meta-data
-        android:name="PHOTOSTREAM_URL"
-        android:value="http://192.168.178.21:8082"/>-->
+        <!--
         <meta-data
         android:name="PHOTOSTREAM_URL"
         android:value="http://192.168.178.21:8082"/>
-
+        -->
+        <meta-data
+            android:name="PHOTOSTREAM_URL"
+            android:value="http://192.168.178.21:8082" />
         <meta-data
             android:name="PAGE_SIZE"
-            android:value="6"/>
+            android:value="6" />
 
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
+
+        <activity
+            android:name=".NewPicture"
+            android:label="@string/title_activity_NewPicture"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

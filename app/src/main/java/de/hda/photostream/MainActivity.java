@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.design.widget.CoordinatorLayout;
@@ -13,17 +15,24 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
+import hochschuledarmstadt.photostream_tools.BitmapUtils;
 import hochschuledarmstadt.photostream_tools.IPhotoStreamClient;
 import hochschuledarmstadt.photostream_tools.PhotoStreamActivity;
 import hochschuledarmstadt.photostream_tools.RequestType;
@@ -38,6 +47,7 @@ import hochschuledarmstadt.photostream_tools.model.PhotoQueryResult;
 
 public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceivedListener, OnRequestListener, OnNewPhotoReceivedListener {
 
+
     private RecyclerView mRecyclerView;
     //private RecyclerView.LayoutManager mLayoutManager;
     private PhotoAdapter mAdapter;
@@ -45,6 +55,8 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
 
     private static final int COLUMNS_PER_ROW = 1;
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int NEW_PICTURE_REQUEST = 2;
+    static final int GALLERY_PIC_REQUEST = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +76,7 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
 
         View view = getLayoutInflater().inflate(R.layout.bottom_sheet, null);
         TextView txtKamera = (TextView) view.findViewById(R.id.txt_kamera);
+        TextView txtGallery = (TextView) view.findViewById(R.id.txt_gallery);
 
         final Dialog mBottomSheetDialog = new Dialog(MainActivity.this,
                 R.style.MaterialDialogSheet);
@@ -85,15 +98,84 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
             }
         });
 
+        txtGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent takePictureIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                takePictureIntent.setType("image/*");
+                if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(Intent.createChooser( takePictureIntent, "Photoauswahl"), GALLERY_PIC_REQUEST);
+                }
+                mBottomSheetDialog.dismiss();
+            }
+        });
+
+
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK)
+        {
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            //mImageView.setImageBitmap(imageBitmap);
+
+            Intent newPicture = new Intent(MainActivity.this, NewPicture.class);
+
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] bytes = stream.toByteArray();
+            newPicture.putExtra("imvImage", bytes);
+            startActivityForResult(newPicture, NEW_PICTURE_REQUEST);
+        }
+
+        if(requestCode == GALLERY_PIC_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null)
+        {
+            Uri uri = data.getData();
+
+
+            Bitmap imageBitmap = null;
+            try {
+                imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+
+            } catch (IOException ex)
+            {
+                Toast.makeText(this, "Photo konnte nicht gewählt werden!", Toast.LENGTH_LONG).show();
+            }
+
+            if(imageBitmap != null) {
+                Intent newPicture = new Intent(MainActivity.this, NewPicture.class);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] bytes = stream.toByteArray();
+                newPicture.putExtra("imvImage",bytes);
+                startActivityForResult(newPicture, NEW_PICTURE_REQUEST);
+            }
+
+        }
+
+        if(requestCode == NEW_PICTURE_REQUEST && resultCode == RESULT_OK)
+        {
+            Bundle extras = data.getExtras();
+            byte[] bytes =  extras.getByteArray("imvImage");
+            Bitmap imageBitmap = (Bitmap) BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            byte[] imageBytes = BitmapUtils.bitmapToBytes(imageBitmap);
+            String description = extras.get("edtDescription").toString();
+
+            IPhotoStreamClient photoStreamClient = getPhotoStreamClient();
+
+            try {
+                photoStreamClient.uploadPhoto( imageBytes, description);
+            } catch(IOException ex)
+            {
+                Toast.makeText(this, "Photo konnte nicht hochgeladen werden!", Toast.LENGTH_LONG).show();
+            } catch(JSONException jex)
+            {
+                Toast.makeText(this, "Photo konnte nicht hochgeladen werden!", Toast.LENGTH_LONG).show();
+            }
+            getPhotoStreamClient().loadPhotos();
         }
     }
 

@@ -30,6 +30,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:id="@+id/floatingActionButton"
-        app:srcCompat="@android:drawable/ic_input_add"
+        android:src="@drawable/ic_add_black_48dp"
+        android:scaleType="center"
         android:onClick="openBottomSheet"/>
 </RelativeLayout>

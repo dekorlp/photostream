@@ -68,6 +68,37 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
 
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+
+
+        if(Intent.ACTION_SEND.equals(action) && type != null)
+        {
+            Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (imageUri != null) {
+                Bitmap imageBitmap = null;
+                try {
+                    imageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+
+                } catch (IOException ex)
+                {
+                    Toast.makeText(this, "Photo konnte nicht gewählt werden!", Toast.LENGTH_LONG).show();
+                }
+
+                if(imageBitmap != null) {
+                    Intent newPicture = new Intent(MainActivity.this, NewPicture.class);
+
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] bytes = stream.toByteArray();
+                    newPicture.putExtra("imvImage",bytes);
+                    startActivityForResult(newPicture, NEW_PICTURE_REQUEST);
+                }
+            }
+        }
+
         mAdapter = new PhotoAdapter();
         mRecyclerView.setAdapter(mAdapter);
     }

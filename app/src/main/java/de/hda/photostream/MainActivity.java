@@ -100,6 +100,17 @@ public class MainActivity extends  PhotoStreamActivity implements OnPhotosReceiv
         }
 
         mAdapter = new PhotoAdapter();
+
+        mAdapter.setOnItemClickListener(R.id.imbDeletePicture, new BasePhotoAdapter.OnItemClickListener<PhotoAdapter.PhotoViewHolder>()
+        {
+
+            @Override
+            public void onItemClicked(PhotoAdapter.PhotoViewHolder viewHolder, View v, Photo photo) {
+                getPhotoStreamClient().deletePhoto(photo.getId());
+                getPhotoStreamClient().loadPhotos();
+            }
+        });
+
         mRecyclerView.setAdapter(mAdapter);
     }
 

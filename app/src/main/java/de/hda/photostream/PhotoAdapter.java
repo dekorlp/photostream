@@ -4,10 +4,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import hochschuledarmstadt.photostream_tools.adapter.BasePhotoAdapter;
+import hochschuledarmstadt.photostream_tools.callback.OnPhotoDeletedListener;
 import hochschuledarmstadt.photostream_tools.model.Photo;
 
 /**
@@ -18,6 +20,7 @@ public class PhotoAdapter extends BasePhotoAdapter<PhotoAdapter.PhotoViewHolder>
 
     private static final float BEGIN_SCALE = 0.5f, BEGIN_ALPHA = 0.1f, MAX = 1.0f;
     private static final int DURATION_IN_MILLIS = 500;
+    public static ImageButton imbDeletePhoto;
 
     public static final class PhotoViewHolder extends RecyclerView.ViewHolder
     {
@@ -32,6 +35,7 @@ public class PhotoAdapter extends BasePhotoAdapter<PhotoAdapter.PhotoViewHolder>
             imageView = (ImageView) itemView.findViewById(R.id.imageView);
             textViewDescription = (TextView) itemView.findViewById(R.id.textViewDescription);
             textViewAnzahlKommentare = (TextView) itemView.findViewById(R.id.textViewAnzahlKommentare);
+            imbDeletePhoto = (ImageButton) itemView.findViewById(R.id.imbDeletePicture);
         }
 
     }
@@ -52,6 +56,11 @@ public class PhotoAdapter extends BasePhotoAdapter<PhotoAdapter.PhotoViewHolder>
         holder.textViewDescription.setText(photo.getDescription());
         holder.textViewAnzahlKommentare.setText(photo.getCommentCount() + " Kommentare");
         loadBitmapIntoImageViewAsync(holder, holder.imageView, photo);
+
+        if(photo.isDeleteable())
+        {
+            imbDeletePhoto.setVisibility(View.VISIBLE);
+        }
     }
 
 
